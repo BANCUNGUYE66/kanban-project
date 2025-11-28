@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 TaskFlow: Professional Kanban Board
 
-## Getting Started
+A modern, full-stack Kanban application built with **Next.js 14 (App Router)**, **Supabase**, and **Optimistic UI** principles. This project mimics real-world SaaS architecture, featuring drag-and-drop task management, dark mode, and persistent database state.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-14-black) ![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue) ![Supabase](https://img.shields.io/badge/Supabase-Database-green)
+
+## 🛠️ Tech Stack
+
+* **Framework:** Next.js 14 (App Router)
+* **Language:** TypeScript (Strict Mode)
+* **Database:** Supabase (PostgreSQL)
+* **State Management:** TanStack Query (React Query)
+* **Drag & Drop:** @dnd-kit (Core, Sortable, Modifiers)
+* **Styling:** Tailwind CSS & Shadcn UI
+* **Theme:** next-themes (Dark/Light Mode)
+
+## ✨ Key Features
+
+* **Drag and Drop:** Smooth sorting between columns using collision detection algorithms.
+* **Optimistic UI:** The interface updates instantly while the database saves in the background, ensuring zero latency for the user.
+* **Persistence:** Task positions and columns are saved to Supabase, ensuring data remains consistent across reloads.
+* **Dark Mode:** Professional light/dark theme toggle using Tailwind.
+* **Database Repair:** Built-in utility to automatically seed the database if tables are empty.
+
+---
+
+## 🏗️ Architecture & How It Works
+
+This application solves the classic challenge of syncing **Local Client State** (for smooth animations) with **Server Database State** (for persistence).
+
+### 1. The Data Bridge (ID Normalization)
+* **The Challenge:** Supabase uses `BigInt` (Numbers) for IDs for performance, but the UI library (`dnd-kit`) requires `Strings` for draggable keys.
+* **The Solution:** A transformation layer in `lib/data/tasks.ts` converts IDs to Strings when fetching, and reverts them to Numbers when mutating (saving) back to the database.
+
+### 2. Optimistic Updates
+When a user drags a card:
+1.  **Immediate Feedback:** The local React state (`columns`) is updated instantly via `setColumns`.
+2.  **Background Sync:** A mutation is fired to Supabase to update the `column_id` and `order_index`.
+3.  **Conflict Prevention:** We configured React Query (`staleTime: 0`) to handle data freshness without causing the UI to "snap back" during user interactions.
+
+### 3. Database Schema
+The app relies on a relational One-to-Many structure:
+* **`columns` table:** Stores board structure (`id`, `title`, `order_index`).
+* **`tasks` table:** Stores items (`id`, `title`, `priority`, `progress`, `column_id`).
+
+---
+
+## 🚀 Getting Started
+
+Follow these steps to run the project locally.
+
+### 1. Prerequisites
+* Node.js 18+ installed.
+* A free [Supabase](https://supabase.com/) account.
+
+### 2. Installation
 
 ```bash
+# Clone the repository
+git clone [https://github.com/BANCUNGUYE66/kanban-project.git](https://github.com/BANCUNGUYE66/kanban-project.git)
+
+# Navigate to the project folder
+cd kanban-project
+
+# Install dependencies
+npm install
+
+
+# run the development server:
+
 npm run dev
+
 # or
+
 yarn dev
+
 # or
+
 pnpm dev
+
 # or
+
 bun dev
-```
+
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
